@@ -45,8 +45,8 @@ Automatically finds all `package.json` files and runs `npm install` on each proj
 1. Clone or download the scripts to your desired location:
 
 ```bash
-git clone <repository-url>
-cd _installer
+git clone https://github.com/sugeng-sulistiyawan/installer.git
+cd installer
 ```
 
 1. Make the scripts executable:
