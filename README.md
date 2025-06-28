@@ -8,36 +8,30 @@ This repository contains utility scripts that automatically search for and insta
 
 ## Scripts
 
-### 1. `composer-install.sh` - Composer Dependencies Installer
+### 1. `install.sh` - Composer Dependencies Installer
 
-Automatically finds all `composer.json` files and runs `composer install` on each project. If vendor directory already exists, runs `composer update` instead. Includes automatic removal of problematic `doku/jokul-php-library` dependency.
+Automatically finds all `composer.json` files and runs `composer install` on each project.
 
 ### 2. `npm-install.sh` - npm Dependencies Installer  
 
-Automatically finds all `package.json` files and runs `npm install` on each project. If node_modules directory already exists, runs `npm update` instead.
+Automatically finds all `package.json` files and runs `npm install` on each project.
+
+### 3. `composer-install.sh` - Alternative Composer Script
+
+Additional Composer installation script (if different implementation).
 
 ## Features
 
 - **🔍 Automatic Discovery**: Recursively searches for dependency files (`composer.json` or `package.json`)
 - **🚫 Smart Exclusions**: Skips common directories like `vendor/`, `node_modules/`, `.git/`, etc.
-- **🔄 Smart Updates**: Runs `composer update` or `npm update` if dependencies already exist, otherwise runs fresh install
-- **🧹 Dependency Cleanup**: Automatically removes problematic dependencies (e.g., `doku/jokul-php-library`)
-- **⚡ Optimized Installation**: Uses optimized flags (`--optimize-autoloader`) for better performance
+- **✅ Duplicate Prevention**: Checks if dependencies are already installed before running
 - **🎨 Colored Output**: Color-coded logging for better readability
 - **📊 Summary Report**: Shows successful and failed installations at the end
 - **⚡ Error Handling**: Graceful handling of permission issues and failed installations
 
 ## Prerequisites
 
-**Note**: These scripts are designed for Linux systems and have been tested on Ubuntu and Fedora distributions.
-
-### System Requirements
-
-- **Operating System**: Linux (Ubuntu, Fedora, or other Linux distributions)
-- **Shell**: Bash (default on most Linux systems)
-- **Permissions**: Ability to execute shell scripts and install packages
-
-### For Composer Script (`composer-install.sh`)
+### For Composer Script (`install.sh`)
 
 - **PHP** installed on your system
 - **Composer** globally installed and accessible via command line
@@ -48,69 +42,16 @@ Automatically finds all `package.json` files and runs `npm install` on each proj
 - **Node.js** and **npm** installed on your system
 - Projects with `package.json` files
 
-### Installation on Ubuntu/Debian
-
-```bash
-# Update package list
-sudo apt update
-
-# Install PHP and required extensions
-sudo apt install php php-cli php-mbstring php-xml php-zip unzip curl
-
-# Install Composer
-curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar /usr/local/bin/composer
-sudo chmod +x /usr/local/bin/composer
-
-# Install Node.js and npm
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Verify installations
-php --version
-composer --version
-node --version
-npm --version
-```
-
-### Installation on Fedora/RHEL/CentOS
-
-```bash
-# Update package list
-sudo dnf update
-
-# Install PHP and required extensions
-sudo dnf install php php-cli php-mbstring php-xml php-zip unzip curl
-
-# Install Composer
-curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar /usr/local/bin/composer
-sudo chmod +x /usr/local/bin/composer
-
-# Install Node.js and npm
-sudo dnf install nodejs npm
-
-# Or install latest LTS version via NodeSource
-curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
-sudo dnf install nodejs
-
-# Verify installations
-php --version
-composer --version
-node --version
-npm --version
-```
-
 ## Installation
 
 1. Clone or download the scripts to your desired location:
 
 ```bash
-git clone https://github.com/sugeng-sulistiyawan/installer.git
-cd installer
+git clone <repository-url>
+cd _installer
 ```
 
-1. Make the scripts executable:
+2. Make the scripts executable:
 
 ```bash
 chmod +x composer-install.sh
@@ -133,21 +74,19 @@ chmod +x npm-install.sh
 
 ### Example Output
 
-```text
+```
 [INFO] Searching for composer.json files inside /home/user/www...
 [INFO] Found composer.json in: /home/user/www/project1
 [INFO] Running composer install in: /home/user/www/project1
 [SUCCESS] Composer install successful in: /home/user/www/project1
 ----------------------------------------
 [INFO] Found composer.json in: /home/user/www/project2
-[WARNING] Vendor directory already exists in /home/user/www/project2. Running composer update instead...
-[SUCCESS] Composer update successful in: /home/user/www/project2
+[WARNING] Vendor directory already exists in /home/user/www/project2. Skipping...
 ----------------------------------------
 
 [INFO] === SUMMARY ===
-[SUCCESS] Successfully installed (2 directories):
+[SUCCESS] Successfully installed (1 directories):
   ✓ /home/user/www/project1
-  ✓ /home/user/www/project2
 [INFO] Done!
 ```
 
@@ -155,7 +94,7 @@ chmod +x npm-install.sh
 
 The scripts work with the following directory structure:
 
-```text
+```
 ~/www/
 ├── project1/
 │   ├── composer.json
@@ -202,7 +141,7 @@ The scripts automatically exclude the following directories to prevent unnecessa
 To change the target directory from `~/www/`, edit the `TARGET_DIR` variable in the scripts:
 
 ```bash
-# Change this line in composer-install.sh or npm-install.sh
+# Change this line in install.sh or npm-install.sh
 TARGET_DIR="$HOME/www"
 # To your desired path, for example:
 TARGET_DIR="/var/www"
@@ -225,8 +164,7 @@ The scripts handle various error scenarios:
 - **Missing target directory**: Verifies that `~/www/` exists
 - **Permission issues**: Handles directories that cannot be accessed
 - **Installation failures**: Tracks and reports failed installations
-- **Dependency conflicts**: Automatically removes problematic dependencies before installation
-- **Update vs Install**: Intelligently chooses between fresh install and update based on existing dependencies
+- **Already installed**: Skips projects that already have dependencies
 
 ## Logging
 
@@ -244,12 +182,10 @@ The scripts use color-coded logging for different message types:
 1. **Permission Denied**
 
    ```bash
-   chmod +x composer-install.sh npm-install.sh
+   chmod +x install.sh npm-install.sh
    ```
 
 2. **Composer/npm not found**
-
-   **Ubuntu/Debian:**
 
    ```bash
    # For Composer
@@ -261,20 +197,6 @@ The scripts use color-coded logging for different message types:
    sudo apt-get install -y nodejs
    ```
 
-   **Fedora/RHEL/CentOS:**
-
-   ```bash
-   # For Composer
-   curl -sS https://getcomposer.org/installer | php
-   sudo mv composer.phar /usr/local/bin/composer
-   
-   # For npm (install Node.js)
-   sudo dnf install nodejs npm
-   # OR for latest LTS:
-   curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
-   sudo dnf install nodejs
-   ```
-
 3. **Target directory not found**
 
    ```bash
@@ -283,29 +205,7 @@ The scripts use color-coded logging for different message types:
 
 ### Debug Mode
 
-To see more detailed output, you can modify the scripts:
-
-- **For npm**: Remove the `--silent` flag from npm commands
-- **For Composer**: Add `--verbose` flag to composer commands
-- **For production**: Add `--no-dev` flag to exclude development dependencies
-- **For development**: Keep all dependencies (default behavior)
-
-Example modifications:
-
-```bash
-# In npm-install.sh, change:
-npm install --silent
-# To:
-npm install --verbose
-
-# In composer-install.sh, change:
-composer install --no-interaction --optimize-autoloader
-# To:
-composer install --no-interaction --optimize-autoloader --verbose
-
-# For production environment, add --no-dev:
-composer install --no-interaction --optimize-autoloader --no-dev
-```
+To see more detailed output, you can modify the scripts to remove the `--silent` flag from npm or add `--verbose` to composer commands.
 
 ## Contributing
 
@@ -317,14 +217,7 @@ composer install --no-interaction --optimize-autoloader --no-dev
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0.
-
-**Author**: Sugeng Sulistiyawan  
-**Email**: <sugeng.sulistiyawan@gmail.com>  
-**GitHub**: <https://github.com/sugeng-sulistiyawan/>  
-**Year**: 2025
-
-For more details, see the [GNU GPL v3 License](https://www.gnu.org/licenses/gpl-3.0.html).
+[Add your license information here]
 
 ## Changelog
 
