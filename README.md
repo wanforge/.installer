@@ -29,6 +29,14 @@ Automatically finds all `package.json` files and runs `npm install` on each proj
 
 ## Prerequisites
 
+**Note**: These scripts are designed for Linux systems and have been tested on Ubuntu and Fedora distributions.
+
+### System Requirements
+
+- **Operating System**: Linux (Ubuntu, Fedora, or other Linux distributions)
+- **Shell**: Bash (default on most Linux systems)
+- **Permissions**: Ability to execute shell scripts and install packages
+
 ### For Composer Script (`composer-install.sh`)
 
 - **PHP** installed on your system
@@ -39,6 +47,59 @@ Automatically finds all `package.json` files and runs `npm install` on each proj
 
 - **Node.js** and **npm** installed on your system
 - Projects with `package.json` files
+
+### Installation on Ubuntu/Debian
+
+```bash
+# Update package list
+sudo apt update
+
+# Install PHP and required extensions
+sudo apt install php php-cli php-mbstring php-xml php-zip unzip curl
+
+# Install Composer
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+sudo chmod +x /usr/local/bin/composer
+
+# Install Node.js and npm
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Verify installations
+php --version
+composer --version
+node --version
+npm --version
+```
+
+### Installation on Fedora/RHEL/CentOS
+
+```bash
+# Update package list
+sudo dnf update
+
+# Install PHP and required extensions
+sudo dnf install php php-cli php-mbstring php-xml php-zip unzip curl
+
+# Install Composer
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+sudo chmod +x /usr/local/bin/composer
+
+# Install Node.js and npm
+sudo dnf install nodejs npm
+
+# Or install latest LTS version via NodeSource
+curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+sudo dnf install nodejs
+
+# Verify installations
+php --version
+composer --version
+node --version
+npm --version
+```
 
 ## Installation
 
@@ -188,6 +249,8 @@ The scripts use color-coded logging for different message types:
 
 2. **Composer/npm not found**
 
+   **Ubuntu/Debian:**
+
    ```bash
    # For Composer
    curl -sS https://getcomposer.org/installer | php
@@ -196,6 +259,20 @@ The scripts use color-coded logging for different message types:
    # For npm (install Node.js)
    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
    sudo apt-get install -y nodejs
+   ```
+
+   **Fedora/RHEL/CentOS:**
+
+   ```bash
+   # For Composer
+   curl -sS https://getcomposer.org/installer | php
+   sudo mv composer.phar /usr/local/bin/composer
+   
+   # For npm (install Node.js)
+   sudo dnf install nodejs npm
+   # OR for latest LTS:
+   curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+   sudo dnf install nodejs
    ```
 
 3. **Target directory not found**
