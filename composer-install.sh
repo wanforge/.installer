@@ -87,7 +87,7 @@ while IFS= read -r -d '' composer_file; do
         log_warning "Vendor directory already exists in $project_dir. Running composer update instead..."
         
         # Run composer update
-        if composer update --no-interaction --optimize-autoloader; then
+        if composer update --no-interaction --optimize-autoloader --with-all-dependencies; then
             log_success "Composer update successful in: $project_dir"
             successful_installs+=("$project_dir")
         else
