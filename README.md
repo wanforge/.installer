@@ -8,30 +8,28 @@ This repository contains utility scripts that automatically search for and insta
 
 ## Scripts
 
-### 1. `install.sh` - Composer Dependencies Installer
+### 1. `composer-install.sh` - Composer Dependencies Installer
 
-Automatically finds all `composer.json` files and runs `composer install` on each project.
+Automatically finds all `composer.json` files and runs `composer install` on each project. If vendor directory already exists, runs `composer update` instead. Includes automatic removal of problematic `doku/jokul-php-library` dependency.
 
 ### 2. `npm-install.sh` - npm Dependencies Installer  
 
-Automatically finds all `package.json` files and runs `npm install` on each project.
-
-### 3. `composer-install.sh` - Alternative Composer Script
-
-Additional Composer installation script (if different implementation).
+Automatically finds all `package.json` files and runs `npm install` on each project. If node_modules directory already exists, runs `npm update` instead.
 
 ## Features
 
 - **🔍 Automatic Discovery**: Recursively searches for dependency files (`composer.json` or `package.json`)
 - **🚫 Smart Exclusions**: Skips common directories like `vendor/`, `node_modules/`, `.git/`, etc.
-- **✅ Duplicate Prevention**: Checks if dependencies are already installed before running
+- **🔄 Smart Updates**: Runs `composer update` or `npm update` if dependencies already exist, otherwise runs fresh install
+- **🧹 Dependency Cleanup**: Automatically removes problematic dependencies (e.g., `doku/jokul-php-library`)
+- **⚡ Optimized Installation**: Uses optimized flags (`--optimize-autoloader`) for better performance
 - **🎨 Colored Output**: Color-coded logging for better readability
 - **📊 Summary Report**: Shows successful and failed installations at the end
 - **⚡ Error Handling**: Graceful handling of permission issues and failed installations
 
 ## Prerequisites
 
-### For Composer Script (`install.sh`)
+### For Composer Script (`composer-install.sh`)
 
 - **PHP** installed on your system
 - **Composer** globally installed and accessible via command line
@@ -51,7 +49,7 @@ git clone <repository-url>
 cd _installer
 ```
 
-2. Make the scripts executable:
+1. Make the scripts executable:
 
 ```bash
 chmod +x composer-install.sh
@@ -74,19 +72,21 @@ chmod +x npm-install.sh
 
 ### Example Output
 
-```
+```text
 [INFO] Searching for composer.json files inside /home/user/www...
 [INFO] Found composer.json in: /home/user/www/project1
 [INFO] Running composer install in: /home/user/www/project1
 [SUCCESS] Composer install successful in: /home/user/www/project1
 ----------------------------------------
 [INFO] Found composer.json in: /home/user/www/project2
-[WARNING] Vendor directory already exists in /home/user/www/project2. Skipping...
+[WARNING] Vendor directory already exists in /home/user/www/project2. Running composer update instead...
+[SUCCESS] Composer update successful in: /home/user/www/project2
 ----------------------------------------
 
 [INFO] === SUMMARY ===
-[SUCCESS] Successfully installed (1 directories):
+[SUCCESS] Successfully installed (2 directories):
   ✓ /home/user/www/project1
+  ✓ /home/user/www/project2
 [INFO] Done!
 ```
 
@@ -94,7 +94,7 @@ chmod +x npm-install.sh
 
 The scripts work with the following directory structure:
 
-```
+```text
 ~/www/
 ├── project1/
 │   ├── composer.json
@@ -141,7 +141,7 @@ The scripts automatically exclude the following directories to prevent unnecessa
 To change the target directory from `~/www/`, edit the `TARGET_DIR` variable in the scripts:
 
 ```bash
-# Change this line in install.sh or npm-install.sh
+# Change this line in composer-install.sh or npm-install.sh
 TARGET_DIR="$HOME/www"
 # To your desired path, for example:
 TARGET_DIR="/var/www"
@@ -164,7 +164,8 @@ The scripts handle various error scenarios:
 - **Missing target directory**: Verifies that `~/www/` exists
 - **Permission issues**: Handles directories that cannot be accessed
 - **Installation failures**: Tracks and reports failed installations
-- **Already installed**: Skips projects that already have dependencies
+- **Dependency conflicts**: Automatically removes problematic dependencies before installation
+- **Update vs Install**: Intelligently chooses between fresh install and update based on existing dependencies
 
 ## Logging
 
@@ -182,7 +183,7 @@ The scripts use color-coded logging for different message types:
 1. **Permission Denied**
 
    ```bash
-   chmod +x install.sh npm-install.sh
+   chmod +x composer-install.sh npm-install.sh
    ```
 
 2. **Composer/npm not found**
@@ -205,7 +206,29 @@ The scripts use color-coded logging for different message types:
 
 ### Debug Mode
 
-To see more detailed output, you can modify the scripts to remove the `--silent` flag from npm or add `--verbose` to composer commands.
+To see more detailed output, you can modify the scripts:
+
+- **For npm**: Remove the `--silent` flag from npm commands
+- **For Composer**: Add `--verbose` flag to composer commands
+- **For production**: Add `--no-dev` flag to exclude development dependencies
+- **For development**: Keep all dependencies (default behavior)
+
+Example modifications:
+
+```bash
+# In npm-install.sh, change:
+npm install --silent
+# To:
+npm install --verbose
+
+# In composer-install.sh, change:
+composer install --no-interaction --optimize-autoloader
+# To:
+composer install --no-interaction --optimize-autoloader --verbose
+
+# For production environment, add --no-dev:
+composer install --no-interaction --optimize-autoloader --no-dev
+```
 
 ## Contributing
 

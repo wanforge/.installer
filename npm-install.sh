@@ -64,19 +64,27 @@ while IFS= read -r -d '' package_file; do
     
     # Check if node_modules directory already exists
     if [ -d "node_modules" ]; then
-        log_warning "node_modules directory already exists in $project_dir. Skipping..."
-        continue
-    fi
-    
-    log_info "Running npm install in: $project_dir"
-    
-    # Run npm install
-    if npm install --silent; then
-        log_success "npm install successful in: $project_dir"
-        successful_installs+=("$project_dir")
+        log_warning "node_modules directory already exists in $project_dir. Running npm update instead..."
+        
+        # Run npm update
+        if npm update --silent; then
+            log_success "npm update successful in: $project_dir"
+            successful_installs+=("$project_dir")
+        else
+            log_error "npm update failed in: $project_dir"
+            failed_installs+=("$project_dir")
+        fi
     else
-        log_error "npm install failed in: $project_dir"
-        failed_installs+=("$project_dir")
+        log_info "Running npm install in: $project_dir"
+        
+        # Run npm install
+        if npm install --silent; then
+            log_success "npm install successful in: $project_dir"
+            successful_installs+=("$project_dir")
+        else
+            log_error "npm install failed in: $project_dir"
+            failed_installs+=("$project_dir")
+        fi
     fi
     
     echo "----------------------------------------"
@@ -92,8 +100,8 @@ done < <(find "$TARGET_DIR" -name "package.json" -type f \
     -not -path "*/.npm/*" \
     -not -path "*/storage/*" \
     -not -path "*/dist/*" \
-    -not -path "*/web/*" \
     -not -path "*/build/*" \
+    -not -path "*/web/*" \
     -not -path "*/rsud-medifirst/*" \
     -print0)
 
