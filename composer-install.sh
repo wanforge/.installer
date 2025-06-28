@@ -91,8 +91,27 @@ while IFS= read -r -d '' composer_file; do
             log_success "Composer update successful in: $project_dir"
             successful_installs+=("$project_dir")
         else
-            log_error "Composer update failed in: $project_dir"
-            failed_installs+=("$project_dir")
+            log_warning "Composer update failed in: $project_dir. Trying fresh install..."
+            
+            # Remove composer.lock and vendor directory for fresh install
+            if [ -f "composer.lock" ]; then
+                log_info "Removing composer.lock for fresh install"
+                rm composer.lock
+            fi
+            
+            if [ -d "vendor" ]; then
+                log_info "Removing vendor directory for fresh install"
+                rm -rf vendor
+            fi
+            
+            # Try fresh composer install
+            if composer install --no-interaction --optimize-autoloader; then
+                log_success "Fresh composer install successful in: $project_dir"
+                successful_installs+=("$project_dir")
+            else
+                log_error "Fresh composer install also failed in: $project_dir"
+                failed_installs+=("$project_dir")
+            fi
         fi
     else
         log_info "Running composer install in: $project_dir"
