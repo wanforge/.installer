@@ -90,10 +90,15 @@ while IFS= read -r -d '' composer_file; do
         if composer update --no-interaction --optimize-autoloader --with-all-dependencies; then
             log_success "Composer update successful in: $project_dir"
             
-            # Commit composer.lock if it exists and we're in a git repository
+            # Commit and push composer.lock if it exists and we're in a git repository
             if [ -f "composer.lock" ] && git rev-parse --git-dir > /dev/null 2>&1; then
-                if git add composer.lock && git commit -m "Update composer.lock after composer update in $(basename "$project_dir")"; then
+                if git add composer.lock && git commit --no-gpg-sign -m "Update composer.lock after composer update in $(basename "$project_dir")"; then
                     log_success "Committed composer.lock for: $project_dir"
+                    if git push; then
+                        log_success "Pushed changes for: $project_dir"
+                    else
+                        log_warning "Failed to push changes for: $project_dir"
+                    fi
                 else
                     log_warning "Failed to commit composer.lock for: $project_dir (may already be up to date)"
                 fi
@@ -118,10 +123,15 @@ while IFS= read -r -d '' composer_file; do
             if composer install --no-interaction --optimize-autoloader; then
                 log_success "Fresh composer install successful in: $project_dir"
                 
-                # Commit composer.lock if it exists and we're in a git repository
+                # Commit and push composer.lock if it exists and we're in a git repository
                 if [ -f "composer.lock" ] && git rev-parse --git-dir > /dev/null 2>&1; then
-                    if git add composer.lock && git commit -m "Add composer.lock after fresh composer install in $(basename "$project_dir")"; then
+                    if git add composer.lock && git commit --no-gpg-sign -m "Add composer.lock after fresh composer install in $(basename "$project_dir")"; then
                         log_success "Committed composer.lock for: $project_dir"
+                        if git push; then
+                            log_success "Pushed changes for: $project_dir"
+                        else
+                            log_warning "Failed to push changes for: $project_dir"
+                        fi
                     else
                         log_warning "Failed to commit composer.lock for: $project_dir (may already be up to date)"
                     fi
@@ -140,10 +150,15 @@ while IFS= read -r -d '' composer_file; do
         if composer install --no-interaction --optimize-autoloader; then
             log_success "Composer install successful in: $project_dir"
             
-            # Commit composer.lock if it exists and we're in a git repository
+            # Commit and push composer.lock if it exists and we're in a git repository
             if [ -f "composer.lock" ] && git rev-parse --git-dir > /dev/null 2>&1; then
-                if git add composer.lock && git commit -m "Add composer.lock after composer install in $(basename "$project_dir")"; then
+                if git add composer.lock && git commit --no-gpg-sign -m "Add composer.lock after composer install in $(basename "$project_dir")"; then
                     log_success "Committed composer.lock for: $project_dir"
+                    if git push; then
+                        log_success "Pushed changes for: $project_dir"
+                    else
+                        log_warning "Failed to push changes for: $project_dir"
+                    fi
                 else
                     log_warning "Failed to commit composer.lock for: $project_dir (may already be up to date)"
                 fi

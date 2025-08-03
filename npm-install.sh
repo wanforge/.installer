@@ -70,10 +70,15 @@ while IFS= read -r -d '' package_file; do
         if npm update --silent; then
             log_success "npm update successful in: $project_dir"
             
-            # Commit package-lock.json if it exists and we're in a git repository
+            # Commit and push package-lock.json if it exists and we're in a git repository
             if [ -f "package-lock.json" ] && git rev-parse --git-dir > /dev/null 2>&1; then
-                if git add package-lock.json && git commit -m "Update package-lock.json after npm update in $(basename "$project_dir")"; then
+                if git add package-lock.json && git commit --no-gpg-sign -m "Update package-lock.json after npm update in $(basename "$project_dir")"; then
                     log_success "Committed package-lock.json for: $project_dir"
+                    if git push; then
+                        log_success "Pushed changes for: $project_dir"
+                    else
+                        log_warning "Failed to push changes for: $project_dir"
+                    fi
                 else
                     log_warning "Failed to commit package-lock.json for: $project_dir (may already be up to date)"
                 fi
@@ -91,10 +96,15 @@ while IFS= read -r -d '' package_file; do
         if npm install --silent; then
             log_success "npm install successful in: $project_dir"
             
-            # Commit package-lock.json if it exists and we're in a git repository
+            # Commit and push package-lock.json if it exists and we're in a git repository
             if [ -f "package-lock.json" ] && git rev-parse --git-dir > /dev/null 2>&1; then
-                if git add package-lock.json && git commit -m "Add package-lock.json after npm install in $(basename "$project_dir")"; then
+                if git add package-lock.json && git commit --no-gpg-sign -m "Add package-lock.json after npm install in $(basename "$project_dir")"; then
                     log_success "Committed package-lock.json for: $project_dir"
+                    if git push; then
+                        log_success "Pushed changes for: $project_dir"
+                    else
+                        log_warning "Failed to push changes for: $project_dir"
+                    fi
                 else
                     log_warning "Failed to commit package-lock.json for: $project_dir (may already be up to date)"
                 fi
