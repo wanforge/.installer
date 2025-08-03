@@ -89,6 +89,16 @@ while IFS= read -r -d '' composer_file; do
         # Run composer update
         if composer update --no-interaction --optimize-autoloader --with-all-dependencies; then
             log_success "Composer update successful in: $project_dir"
+            
+            # Commit composer.lock if it exists and we're in a git repository
+            if [ -f "composer.lock" ] && git rev-parse --git-dir > /dev/null 2>&1; then
+                if git add composer.lock && git commit -m "Update composer.lock after composer update in $(basename "$project_dir")"; then
+                    log_success "Committed composer.lock for: $project_dir"
+                else
+                    log_warning "Failed to commit composer.lock for: $project_dir (may already be up to date)"
+                fi
+            fi
+            
             successful_installs+=("$project_dir")
         else
             log_warning "Composer update failed in: $project_dir. Trying fresh install..."
@@ -107,6 +117,16 @@ while IFS= read -r -d '' composer_file; do
             # Try fresh composer install
             if composer install --no-interaction --optimize-autoloader; then
                 log_success "Fresh composer install successful in: $project_dir"
+                
+                # Commit composer.lock if it exists and we're in a git repository
+                if [ -f "composer.lock" ] && git rev-parse --git-dir > /dev/null 2>&1; then
+                    if git add composer.lock && git commit -m "Add composer.lock after fresh composer install in $(basename "$project_dir")"; then
+                        log_success "Committed composer.lock for: $project_dir"
+                    else
+                        log_warning "Failed to commit composer.lock for: $project_dir (may already be up to date)"
+                    fi
+                fi
+                
                 successful_installs+=("$project_dir")
             else
                 log_error "Fresh composer install also failed in: $project_dir"
@@ -119,6 +139,16 @@ while IFS= read -r -d '' composer_file; do
         # Run composer install
         if composer install --no-interaction --optimize-autoloader; then
             log_success "Composer install successful in: $project_dir"
+            
+            # Commit composer.lock if it exists and we're in a git repository
+            if [ -f "composer.lock" ] && git rev-parse --git-dir > /dev/null 2>&1; then
+                if git add composer.lock && git commit -m "Add composer.lock after composer install in $(basename "$project_dir")"; then
+                    log_success "Committed composer.lock for: $project_dir"
+                else
+                    log_warning "Failed to commit composer.lock for: $project_dir (may already be up to date)"
+                fi
+            fi
+            
             successful_installs+=("$project_dir")
         else
             log_error "Composer install failed in: $project_dir"
@@ -139,7 +169,7 @@ done < <(find "$TARGET_DIR" -name "composer.json" -type f \
     -not -path "*/.composer/*" \
     -not -path "*/storage/*" \
     -not -path "*/web/*" \
-    -not -path "*/rsud-medifirst/*" \
+    -not -path "*/rsud/medifirst/*" \
     -print0)
 
 # Display summary

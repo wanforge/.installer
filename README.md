@@ -8,17 +8,13 @@ This repository contains utility scripts that automatically search for and insta
 
 ## Scripts
 
-### 1. `install.sh` - Composer Dependencies Installer
+### 1. `composer-install.sh` - Composer Dependencies Installer
 
 Automatically finds all `composer.json` files and runs `composer install` on each project.
 
 ### 2. `npm-install.sh` - npm Dependencies Installer  
 
 Automatically finds all `package.json` files and runs `npm install` on each project.
-
-### 3. `composer-install.sh` - Alternative Composer Script
-
-Additional Composer installation script (if different implementation).
 
 ## Features
 
@@ -28,35 +24,39 @@ Additional Composer installation script (if different implementation).
 - **🎨 Colored Output**: Color-coded logging for better readability
 - **📊 Summary Report**: Shows successful and failed installations at the end
 - **⚡ Error Handling**: Graceful handling of permission issues and failed installations
+- **🔄 Auto Git Commit**: Automatically commits lock files (`composer.lock` / `package-lock.json`) after successful installations
+- **🧹 Dependency Cleanup**: Removes problematic dependencies like `doku/jokul-php-library` from composer.json
 
 ## Prerequisites
 
-### For Composer Script (`install.sh`)
+### For Composer Script (`composer-install.sh`)
 
 - **PHP** installed on your system
 - **Composer** globally installed and accessible via command line
+- **Git** installed and configured (for automatic lock file commits)
 - Projects with `composer.json` files
 
 ### For npm Script (`npm-install.sh`)
 
 - **Node.js** and **npm** installed on your system
+- **Git** installed and configured (for automatic lock file commits)
 - Projects with `package.json` files
 
 ## Installation
 
 1. Clone or download the scripts to your desired location:
 
-```bash
-git clone <repository-url>
-cd _installer
-```
+   ```bash
+   git clone <repository-url>
+   cd .installer
+   ```
 
 2. Make the scripts executable:
 
-```bash
-chmod +x composer-install.sh
-chmod +x npm-install.sh
-```
+   ```bash
+   chmod +x composer-install.sh
+   chmod +x npm-install.sh
+   ```
 
 ## Usage
 
@@ -74,19 +74,23 @@ chmod +x npm-install.sh
 
 ### Example Output
 
-```
+```bash
 [INFO] Searching for composer.json files inside /home/user/www...
 [INFO] Found composer.json in: /home/user/www/project1
 [INFO] Running composer install in: /home/user/www/project1
 [SUCCESS] Composer install successful in: /home/user/www/project1
+[SUCCESS] Committed composer.lock for: /home/user/www/project1
 ----------------------------------------
 [INFO] Found composer.json in: /home/user/www/project2
-[WARNING] Vendor directory already exists in /home/user/www/project2. Skipping...
+[WARNING] Vendor directory already exists in /home/user/www/project2. Running composer update instead...
+[SUCCESS] Composer update successful in: /home/user/www/project2
+[SUCCESS] Committed composer.lock for: /home/user/www/project2
 ----------------------------------------
 
 [INFO] === SUMMARY ===
-[SUCCESS] Successfully installed (1 directories):
+[SUCCESS] Successfully installed (2 directories):
   ✓ /home/user/www/project1
+  ✓ /home/user/www/project2
 [INFO] Done!
 ```
 
@@ -94,7 +98,7 @@ chmod +x npm-install.sh
 
 The scripts work with the following directory structure:
 
-```
+```text
 ~/www/
 ├── project1/
 │   ├── composer.json
@@ -141,7 +145,7 @@ The scripts automatically exclude the following directories to prevent unnecessa
 To change the target directory from `~/www/`, edit the `TARGET_DIR` variable in the scripts:
 
 ```bash
-# Change this line in install.sh or npm-install.sh
+# Change this line in composer-install.sh or npm-install.sh
 TARGET_DIR="$HOME/www"
 # To your desired path, for example:
 TARGET_DIR="/var/www"
@@ -166,6 +170,46 @@ The scripts handle various error scenarios:
 - **Installation failures**: Tracks and reports failed installations
 - **Already installed**: Skips projects that already have dependencies
 
+## Git Integration
+
+### Automatic Lock File Commits
+
+Both scripts automatically commit lock files after successful dependency installations:
+
+- **`composer-install.sh`**: Commits `composer.lock` files
+- **`npm-install.sh`**: Commits `package-lock.json` files
+
+### How It Works
+
+1. After successful installation/update, the script checks if:
+   - A lock file exists (`composer.lock` or `package-lock.json`)
+   - The project directory is a git repository
+2. If both conditions are met, it automatically:
+   - Adds the lock file to git staging
+   - Commits with a descriptive message
+   - Displays success/warning messages
+
+### Git Commit Messages
+
+The scripts use descriptive commit messages:
+
+- `"Add composer.lock after composer install in {project-name}"`
+- `"Update composer.lock after composer update in {project-name}"`
+- `"Add package-lock.json after npm install in {project-name}"`
+- `"Update package-lock.json after npm update in {project-name}"`
+
+### Prerequisites for Git Integration
+
+- Projects must be git repositories (have `.git` directory)
+- Git must be configured with user name and email
+- Appropriate git permissions for the project directories
+
+```bash
+# Configure git if not already done
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
+
 ## Logging
 
 The scripts use color-coded logging for different message types:
@@ -182,7 +226,7 @@ The scripts use color-coded logging for different message types:
 1. **Permission Denied**
 
    ```bash
-   chmod +x install.sh npm-install.sh
+   chmod +x composer-install.sh npm-install.sh
    ```
 
 2. **Composer/npm not found**
@@ -220,6 +264,13 @@ To see more detailed output, you can modify the scripts to remove the `--silent`
 [Add your license information here]
 
 ## Changelog
+
+### Version 1.1.0
+
+- **NEW**: Automatic git commit for lock files after successful installations
+- **NEW**: Automatic removal of problematic `doku/jokul-php-library` dependency
+- **IMPROVED**: Enhanced error handling and logging
+- **IMPROVED**: Better handling of existing installations (update vs fresh install)
 
 ### Version 1.0.0
 
