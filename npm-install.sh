@@ -132,7 +132,7 @@ done < <(find "$TARGET_DIR" -name "package.json" -type f \
     -not -path "*/dist/*" \
     -not -path "*/build/*" \
     -not -path "*/web/*" \
-    -not -path "*/rsud/medifirst/*" \
+    -not -path "*/*medifirst/*" \
     -print0)
 
 # Display summary

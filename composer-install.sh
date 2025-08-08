@@ -184,7 +184,7 @@ done < <(find "$TARGET_DIR" -name "composer.json" -type f \
     -not -path "*/.composer/*" \
     -not -path "*/storage/*" \
     -not -path "*/web/*" \
-    -not -path "*/rsud/medifirst/*" \
+    -not -path "*/*medifirst/*" \
     -print0)
 
 # Display summary
